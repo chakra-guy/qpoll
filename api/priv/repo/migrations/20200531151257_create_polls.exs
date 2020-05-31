@@ -3,10 +3,9 @@ defmodule Qpoll.Repo.Migrations.CreatePolls do
 
   def change do
     create table(:polls) do
-      add :question, :string
+      add(:question, :string)
 
       timestamps()
     end
-
   end
 end

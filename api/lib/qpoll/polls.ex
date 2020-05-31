@@ -6,7 +6,7 @@ defmodule Qpoll.Polls do
   import Ecto.Query, warn: false
   alias Qpoll.Repo
 
-  alias Qpoll.Polls.Poll
+  alias Qpoll.Polls.{Poll, PollOption}
 
   @doc """
   Returns the list of polls.
@@ -101,8 +101,6 @@ defmodule Qpoll.Polls do
   def change_poll(%Poll{} = poll) do
     Poll.changeset(poll, %{})
   end
-
-  alias Qpoll.Polls.PollOption
 
   @doc """
   Returns the list of poll_options.

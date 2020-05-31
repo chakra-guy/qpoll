@@ -1,12 +1,13 @@
 defmodule Qpoll.Polls.PollOption do
   use Ecto.Schema
   import Ecto.Changeset
+  alias Qpoll.Polls.Poll
 
   schema "poll_options" do
-    field :option, :string
-    field :poll_id, :id
-
+    field(:option, :string)
     timestamps()
+
+    belongs_to(:poll, Poll)
   end
 
   @doc false
