@@ -21,7 +21,7 @@ defmodule QpollWeb.PollController do
   end
 
   def show(conn, %{"id" => id}) do
-    poll = Polls.get_poll!(id) |> IO.inspect(label: "STAGE 4")
+    poll = Polls.get_poll!(id)
     render(conn, "show.json", poll: poll)
   end
 
