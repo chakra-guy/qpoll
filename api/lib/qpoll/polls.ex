@@ -35,7 +35,11 @@ defmodule Qpoll.Polls do
       ** (Ecto.NoResultsError)
 
   """
-  def get_poll!(id), do: Repo.get!(Poll, id)
+  def get_poll!(id) do
+    Poll
+    |> Repo.get!(id)
+    |> Repo.preload(:poll_options)
+  end
 
   @doc """
   Creates a poll.
