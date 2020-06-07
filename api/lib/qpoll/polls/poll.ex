@@ -7,7 +7,7 @@ defmodule Qpoll.Polls.Poll do
     field(:question, :string)
     timestamps()
 
-    has_many(:poll_options, PollOption)
+    has_many(:poll_options, PollOption, on_replace: :delete)
   end
 
   @doc false

@@ -21,7 +21,7 @@ defmodule QpollWeb.PollView do
     %{
       id: poll.id,
       question: poll.question,
-      poll_options: render_many(poll.poll_options, QpollWeb.PollOptionView, "poll_option.json")
+      options: render_many(poll.poll_options, QpollWeb.PollOptionView, "poll_option.json")
     }
   end
 end

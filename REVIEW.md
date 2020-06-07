@@ -5,7 +5,12 @@
   -- :preload in list view or have 2 different views?
 - CRUD resource from 2 endpoints? (dedicated and nested)
 - Is it best practise to use binary_id over id for ecto types?
-- PollController: best practise for key name changes options -> poll_options?
+- PollController: what's best practise for key name changes options -> poll_options?
+- What's a common way to write this: `polls.ex -> by_poll_id/2` (list_poll_options or list_poll_options_by_poll)
+- on a PUT and DELETE `/polls/:id/options` requests, should I check whether the poll_option_ids belong to the poll_id?
+- `POST /polls/:id/options`
+  - assoc_constraint?
+  - create_poll_option()?
 
 # Resources
 
