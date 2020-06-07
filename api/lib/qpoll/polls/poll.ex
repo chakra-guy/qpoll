@@ -8,6 +8,7 @@ defmodule Qpoll.Polls.Poll do
     timestamps()
 
     has_many(:poll_options, PollOption, on_replace: :delete)
+    has_many(:votes, through: [:poll_options, :votes])
   end
 
   @doc false

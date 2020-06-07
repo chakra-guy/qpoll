@@ -10,6 +10,7 @@ defmodule QpollWeb.Router do
 
     resources("/polls", PollController, except: [:new, :edit]) do
       resources("/options", PollOptionController, except: [:new, :edit], as: "option")
+      resources("/votes", VoteController, only: [:index, :create], as: "vote")
     end
   end
 end
