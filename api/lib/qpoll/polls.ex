@@ -107,16 +107,22 @@ defmodule Qpoll.Polls do
   end
 
   @doc """
-  Returns the list of poll_options.
+  Returns the list of poll_options for a given poll.
 
   ## Examples
 
-      iex> list_poll_options()
+      iex> list_poll_options(1)
       [%PollOption{}, ...]
 
   """
-  def list_poll_options do
-    Repo.all(PollOption)
+  def list_poll_options(poll_id) do
+    PollOption
+    |> by_poll(poll_id)
+    |> Repo.all()
+  end
+
+  defp by_poll(query, poll_id) do
+    from(po in query, where: po.poll_id == ^poll_id)
   end
 
   @doc """
@@ -136,7 +142,7 @@ defmodule Qpoll.Polls do
   def get_poll_option!(id), do: Repo.get!(PollOption, id)
 
   @doc """
-  Creates a poll_option.
+  Creates a poll_option for a given poll.
 
   ## Examples
 
@@ -147,8 +153,10 @@ defmodule Qpoll.Polls do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_poll_option(attrs \\ %{}) do
-    %PollOption{}
+  def create_poll_option(poll_id, attrs \\ %{}) do
+    Poll
+    |> Repo.get(poll_id)
+    |> Ecto.build_assoc(:poll_options)
     |> PollOption.changeset(attrs)
     |> Repo.insert()
   end

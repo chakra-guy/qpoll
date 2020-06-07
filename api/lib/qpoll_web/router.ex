@@ -9,7 +9,7 @@ defmodule QpollWeb.Router do
     pipe_through(:api)
 
     resources("/polls", PollController, except: [:new, :edit]) do
-      resources("/options", PollOptionController, except: [:new, :edit])
+      resources("/options", PollOptionController, except: [:new, :edit], as: "option")
     end
   end
 end

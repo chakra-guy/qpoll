@@ -14,6 +14,7 @@ defmodule Qpoll.Polls.PollOption do
   def changeset(poll_option, attrs) do
     poll_option
     |> cast(attrs, [:option])
+    |> assoc_constraint(:poll)
     |> validate_required([:option])
   end
 end
