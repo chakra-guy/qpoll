@@ -38,7 +38,7 @@ defmodule Qpoll.Polls do
   def get_poll!(id) do
     Poll
     |> Repo.get!(id)
-    |> Repo.preload(:poll_options)
+    |> Repo.preload(poll_options: [:votes])
   end
 
   @doc """
@@ -209,16 +209,20 @@ defmodule Qpoll.Polls do
   end
 
   @doc """
-  Returns the list of votes.
+  Returns the list of votes for a given poll.
 
   ## Examples
 
-      iex> list_votes()
+      iex> list_votes(poll_id)
       [%Vote{}, ...]
 
   """
-  def list_votes do
-    Repo.all(Vote)
+  def list_votes(poll_id) do
+    poll = get_poll!(poll_id)
+
+    votes = Enum.flat_map(poll.poll_options, fn option -> option.votes end)
+
+    votes
   end
 
   @doc """
@@ -238,20 +242,21 @@ defmodule Qpoll.Polls do
   def get_vote!(id), do: Repo.get!(Vote, id)
 
   @doc """
-  Creates a vote.
+  Creates a vote for a give poll option.
 
   ## Examples
 
-      iex> create_vote(%{field: value})
+      iex> create_vote(%{option_id: value})
       {:ok, %Vote{}}
 
-      iex> create_vote(%{field: bad_value})
+      iex> create_vote(%{option_id: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_vote(attrs \\ %{}) do
-    %Vote{}
-    |> Vote.changeset(attrs)
+  def create_vote(%{"option_id" => poll_option_id}) do
+    PollOption
+    |> Repo.get(poll_option_id)
+    |> Ecto.build_assoc(:votes)
     |> Repo.insert()
   end
 

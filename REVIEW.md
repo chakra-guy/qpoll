@@ -7,10 +7,11 @@
 - Is it best practise to use binary_id over id for ecto types?
 - PollController: what's best practise for key name changes options -> poll_options?
 - What's a common way to write this: `polls.ex -> by_poll_id/2` (list_poll_options or list_poll_options_by_poll)
-- on a PUT and DELETE `/polls/:id/options` requests, should I check whether the poll_option_ids belong to the poll_id?
+- on a PUT and DELETE `/polls/:id/options` requests, should I check whether the poll_option_ids belong to the poll_id? (same for voting -> check both poll and option?)
 - `POST /polls/:id/options`
   - assoc_constraint?
   - create_poll_option()?
+- `vote_view.ex -> index.json + counted_vote.json`
 
 # Resources
 

@@ -3,7 +3,15 @@ defmodule QpollWeb.VoteView do
   alias QpollWeb.VoteView
 
   def render("index.json", %{votes: votes}) do
-    %{data: render_many(votes, VoteView, "vote.json")}
+    counted_votes =
+      Enum.reduce(votes, %{}, fn vote, acc ->
+        Map.update(acc, vote.poll_option_id, 1, &(&1 + 1))
+      end)
+      |> Enum.map(fn {poll_option_id, count} ->
+        %{poll_option_id: poll_option_id, count: count}
+      end)
+
+    %{data: render_many(counted_votes, VoteView, "counted_vote.json")}
   end
 
   def render("show.json", %{vote: vote}) do
@@ -11,6 +19,10 @@ defmodule QpollWeb.VoteView do
   end
 
   def render("vote.json", %{vote: vote}) do
-    %{id: vote.id}
+    %{id: vote.id, option_id: vote.poll_option_id}
+  end
+
+  def render("counted_vote.json", %{vote: vote}) do
+    %{option_id: vote.poll_option_id, vote_count: vote.count}
   end
 end
