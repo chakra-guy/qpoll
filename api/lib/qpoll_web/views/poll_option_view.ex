@@ -1,6 +1,6 @@
 defmodule QpollWeb.PollOptionView do
   use QpollWeb, :view
-  alias QpollWeb.{PollOptionView, VoteView}
+  alias QpollWeb.PollOptionView
 
   def render("index.json", %{poll_options: poll_options}) do
     %{data: render_many(poll_options, PollOptionView, "poll_option.json")}
