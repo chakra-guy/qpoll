@@ -12,6 +12,8 @@
   - assoc_constraint?
   - create_poll_option()?
 - `vote_view.ex -> index.json + counted_vote.json`
+- `changeset_with_options` needs end-to-end review
+- Ecto.assoc_loaded?(votes) in poll_option_view.ex?
 
 # Resources
 

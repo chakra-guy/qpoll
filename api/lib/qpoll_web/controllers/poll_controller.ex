@@ -12,7 +12,14 @@ defmodule QpollWeb.PollController do
   end
 
   def create(conn, %{"poll" => poll_params}) do
-    with {:ok, %Poll{} = poll} <- Polls.create_poll(poll_params) do
+    poll_options =
+      poll_params
+      |> Map.get("options", [])
+      |> Enum.map(&%{"option" => &1})
+
+    params = Map.put(poll_params, "poll_options", poll_options)
+
+    with {:ok, %Poll{} = poll} <- Polls.create_poll(params) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", Routes.poll_path(conn, :show, poll))

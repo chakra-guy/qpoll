@@ -53,7 +53,15 @@ defmodule Qpoll.Polls do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_poll(attrs \\ %{}) do
+  def create_poll(attrs \\ %{})
+
+  def create_poll(%{"poll_options" => _} = attrs) do
+    %Poll{}
+    |> Poll.changeset_with_options(attrs)
+    |> Repo.insert()
+  end
+
+  def create_poll(attrs) do
     %Poll{}
     |> Poll.changeset(attrs)
     |> Repo.insert()

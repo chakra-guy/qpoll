@@ -1,5 +1,6 @@
 defmodule QpollWeb.PollOptionView do
   use QpollWeb, :view
+  alias Ecto
   alias QpollWeb.PollOptionView
 
   def render("index.json", %{poll_options: poll_options}) do
@@ -10,11 +11,13 @@ defmodule QpollWeb.PollOptionView do
     %{data: render_one(poll_option, PollOptionView, "poll_option.json")}
   end
 
-  def render("poll_option.json", %{poll_option: poll_option}) do
+  def render("poll_option.json", %{poll_option: %{id: id, option: option, votes: votes}}) do
+    vote_count = if Ecto.assoc_loaded?(votes), do: Enum.count(votes), else: 0
+
     %{
-      id: poll_option.id,
-      option: poll_option.option,
-      vote_count: Enum.count(poll_option.votes)
+      id: id,
+      option: option,
+      vote_count: vote_count
     }
   end
 end
