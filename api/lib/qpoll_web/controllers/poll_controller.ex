@@ -12,12 +12,7 @@ defmodule QpollWeb.PollController do
   end
 
   def create(conn, %{"poll" => poll_params}) do
-    poll_options =
-      poll_params
-      |> Map.get("options", [])
-      |> Enum.map(&%{"option" => &1})
-
-    params = Map.put(poll_params, "poll_options", poll_options)
+    params = fixme_format_poll_params(poll_params)
 
     with {:ok, %Poll{} = poll} <- Polls.create_poll(params) do
       conn
@@ -34,8 +29,9 @@ defmodule QpollWeb.PollController do
 
   def update(conn, %{"id" => id, "poll" => poll_params}) do
     poll = Polls.get_poll!(id)
+    params = fixme_format_poll_params(poll_params)
 
-    with {:ok, %Poll{} = poll} <- Polls.update_poll(poll, poll_params) do
+    with {:ok, %Poll{} = poll} <- Polls.update_poll(poll, params) do
       render(conn, "show.json", poll: poll)
     end
   end
@@ -46,5 +42,16 @@ defmodule QpollWeb.PollController do
     with {:ok, %Poll{}} <- Polls.delete_poll(poll) do
       send_resp(conn, :no_content, "")
     end
+  end
+
+  defp fixme_format_poll_params(poll_params) do
+    poll_options =
+      poll_params
+      |> Map.get("options", [])
+      |> Enum.map(&%{"option" => &1})
+
+    params = Map.put(poll_params, "poll_options", poll_options)
+
+    params
   end
 end

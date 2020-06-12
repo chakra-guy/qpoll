@@ -7,13 +7,15 @@ defmodule QpollWeb.PollOptionController do
   action_fallback(QpollWeb.FallbackController)
 
   def index(conn, %{"poll_id" => poll_id}) do
-    poll_options = Polls.list_poll_options(poll_id)
-    render(conn, "index.json", poll_options: poll_options)
+    poll = Polls.get_poll!(poll_id)
+    render(conn, "index.json", poll_options: poll.poll_options)
   end
 
   def create(conn, %{"poll_id" => poll_id, "poll_option" => poll_option_params}) do
+    poll = Polls.get_poll!(poll_id)
+
     with {:ok, %PollOption{} = poll_option} <-
-           Polls.create_poll_option(poll_id, poll_option_params) do
+           Polls.create_poll_option(poll, poll_option_params) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", Routes.poll_option_path(conn, :show, poll_id, poll_option))

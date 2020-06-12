@@ -81,7 +81,7 @@ defmodule Qpoll.Polls do
   """
   def update_poll(%Poll{} = poll, attrs) do
     poll
-    |> Poll.changeset(attrs)
+    |> Poll.changeset_with_options(attrs)
     |> Repo.update()
   end
 
@@ -123,6 +123,7 @@ defmodule Qpoll.Polls do
       [%PollOption{}, ...]
 
   """
+
   def list_poll_options(poll_id) do
     PollOption
     |> by_poll(poll_id)
@@ -161,9 +162,8 @@ defmodule Qpoll.Polls do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_poll_option(poll_id, attrs \\ %{}) do
-    Poll
-    |> Repo.get(poll_id)
+  def create_poll_option(poll, attrs \\ %{}) do
+    poll
     |> Ecto.build_assoc(:poll_options)
     |> PollOption.changeset(attrs)
     |> Repo.insert()
@@ -225,12 +225,8 @@ defmodule Qpoll.Polls do
       [%Vote{}, ...]
 
   """
-  def list_votes(poll_id) do
-    poll = get_poll!(poll_id)
-
-    votes = Enum.flat_map(poll.poll_options, fn option -> option.votes end)
-
-    votes
+  def list_votes(poll) do
+    Enum.flat_map(poll.poll_options, fn option -> option.votes end)
   end
 
   @doc """

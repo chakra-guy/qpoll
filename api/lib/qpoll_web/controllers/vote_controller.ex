@@ -7,7 +7,8 @@ defmodule QpollWeb.VoteController do
   action_fallback(QpollWeb.FallbackController)
 
   def index(conn, %{"poll_id" => poll_id}) do
-    votes = Polls.list_votes(poll_id)
+    poll = Polls.get_poll!(poll_id)
+    votes = Polls.list_votes(poll)
     render(conn, "index.json", votes: votes)
   end
 
