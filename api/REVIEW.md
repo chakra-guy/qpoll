@@ -14,7 +14,13 @@
 - `vote_view.ex -> index.json + counted_vote.json`
 - `changeset_with_options` needs end-to-end review
   - also do i need to have a separate changeset for this?
+    -> separate changeset for `|> cast_assoc(:poll_options)`?
 - Ecto.assoc_loaded?(votes) in poll_option_view.ex?
+- version the api?
+- delete publish or post unpublish?
+- json api camelcase or snake case for properties?
+- add clase for ecto assoc not loaded? `get_poll_option`
+- `update_poll_option()` what to do will poll?
 
 # Resources
 

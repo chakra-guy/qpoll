@@ -1,11 +1,9 @@
 defmodule QpollWeb.ErrorView do
   use QpollWeb, :view
 
-  # If you want to customize a particular status code
-  # for a certain format, you may uncomment below.
-  # def render("500.json", _assigns) do
-  #   %{errors: %{detail: "Internal Server Error"}}
-  # end
+  def render("published_poll_cant_be_modified.json", _assigns) do
+    %{errors: %{detail: "Poll can't be modified when it's published"}}
+  end
 
   # By default, Phoenix returns the status message from
   # the template name. For example, "404.json" becomes

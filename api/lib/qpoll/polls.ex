@@ -53,15 +53,7 @@ defmodule Qpoll.Polls do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_poll(attrs \\ %{})
-
-  def create_poll(%{"poll_options" => _} = attrs) do
-    %Poll{}
-    |> Poll.changeset_with_options(attrs)
-    |> Repo.insert()
-  end
-
-  def create_poll(attrs) do
+  def create_poll(attrs \\ %{}) do
     %Poll{}
     |> Poll.changeset(attrs)
     |> Repo.insert()
@@ -79,9 +71,25 @@ defmodule Qpoll.Polls do
       {:error, %Ecto.Changeset{}}
 
   """
+  def update_poll(%Poll{is_published: true} = _poll, _attrs) do
+    {:error, :published_poll_cant_be_modified}
+  end
+
   def update_poll(%Poll{} = poll, attrs) do
     poll
-    |> Poll.changeset_with_options(attrs)
+    |> Poll.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def publish_poll(%Poll{} = poll) do
+    poll
+    |> Poll.changeset(%{is_published: true})
+    |> Repo.update()
+  end
+
+  def unpublish_poll(%Poll{} = poll) do
+    poll
+    |> Poll.changeset(%{is_published: false})
     |> Repo.update()
   end
 
@@ -102,39 +110,6 @@ defmodule Qpoll.Polls do
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking poll changes.
-
-  ## Examples
-
-      iex> change_poll(poll)
-      %Ecto.Changeset{source: %Poll{}}
-
-  """
-  def change_poll(%Poll{} = poll) do
-    Poll.changeset(poll, %{})
-  end
-
-  @doc """
-  Returns the list of poll_options for a given poll.
-
-  ## Examples
-
-      iex> list_poll_options(1)
-      [%PollOption{}, ...]
-
-  """
-
-  def list_poll_options(poll_id) do
-    PollOption
-    |> by_poll(poll_id)
-    |> Repo.all()
-  end
-
-  defp by_poll(query, poll_id) do
-    from(po in query, where: po.poll_id == ^poll_id)
-  end
-
-  @doc """
   Gets a single poll_option.
 
   Raises `Ecto.NoResultsError` if the Poll option does not exist.
@@ -148,7 +123,15 @@ defmodule Qpoll.Polls do
       ** (Ecto.NoResultsError)
 
   """
-  def get_poll_option!(id), do: Repo.get!(PollOption, id)
+  def get_poll_option!(%Poll{} = poll, id) when is_binary(id) do
+    # FIXME this should raise an errror
+    poll_option = Enum.find(poll.poll_options, fn option -> to_string(option.id) == id end)
+
+    case poll_option do
+      %PollOption{} -> {:ok, poll_option}
+      nil -> {:error, :not_found}
+    end
+  end
 
   @doc """
   Creates a poll_option for a given poll.
@@ -162,7 +145,13 @@ defmodule Qpoll.Polls do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_poll_option(poll, attrs \\ %{}) do
+  def create_poll_option(poll, attrs \\ %{})
+
+  def create_poll_option(%Poll{is_published: true} = _poll, _attrs) do
+    {:error, :published_poll_cant_be_modified}
+  end
+
+  def create_poll_option(%Poll{} = poll, attrs) do
     poll
     |> Ecto.build_assoc(:poll_options)
     |> PollOption.changeset(attrs)
@@ -181,7 +170,13 @@ defmodule Qpoll.Polls do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_poll_option(%PollOption{} = poll_option, attrs) do
+  def update_poll_option(%Poll{is_published: true} = _poll, _poll_option, _attrs) do
+    {:error, :published_poll_cant_be_modified}
+  end
+
+  def update_poll_option(%Poll{} = _poll, %PollOption{} = poll_option, attrs) do
+    # FIXME this should check wheter option belongs to poll
+
     poll_option
     |> PollOption.changeset(attrs)
     |> Repo.update()
@@ -199,21 +194,14 @@ defmodule Qpoll.Polls do
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_poll_option(%PollOption{} = poll_option) do
-    Repo.delete(poll_option)
+  def delete_poll_option(%Poll{is_published: true} = _poll, _poll_option) do
+    {:error, :published_poll_cant_be_modified}
   end
 
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking poll_option changes.
+  def delete_poll_option(%Poll{} = _poll, poll_option) do
+    # FIXME this should check wheter option belongs to poll
 
-  ## Examples
-
-      iex> change_poll_option(poll_option)
-      %Ecto.Changeset{source: %PollOption{}}
-
-  """
-  def change_poll_option(%PollOption{} = poll_option) do
-    PollOption.changeset(poll_option, %{})
+    Repo.delete(poll_option)
   end
 
   @doc """
@@ -225,7 +213,7 @@ defmodule Qpoll.Polls do
       [%Vote{}, ...]
 
   """
-  def list_votes(poll) do
+  def list_votes(%Poll{} = poll) do
     Enum.flat_map(poll.poll_options, fn option -> option.votes end)
   end
 
@@ -262,52 +250,5 @@ defmodule Qpoll.Polls do
     |> Repo.get(poll_option_id)
     |> Ecto.build_assoc(:votes)
     |> Repo.insert()
-  end
-
-  @doc """
-  Updates a vote.
-
-  ## Examples
-
-      iex> update_vote(vote, %{field: new_value})
-      {:ok, %Vote{}}
-
-      iex> update_vote(vote, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_vote(%Vote{} = vote, attrs) do
-    vote
-    |> Vote.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
-  Deletes a vote.
-
-  ## Examples
-
-      iex> delete_vote(vote)
-      {:ok, %Vote{}}
-
-      iex> delete_vote(vote)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_vote(%Vote{} = vote) do
-    Repo.delete(vote)
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking vote changes.
-
-  ## Examples
-
-      iex> change_vote(vote)
-      %Ecto.Changeset{source: %Vote{}}
-
-  """
-  def change_vote(%Vote{} = vote) do
-    Vote.changeset(vote, %{})
   end
 end

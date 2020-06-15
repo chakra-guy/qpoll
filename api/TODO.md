@@ -4,3 +4,4 @@
 - handle PUT /poll/:id with options change
 - rename poll_options to options
 - update doc-tests
+- add comment to `publish_poll` & `unpublish_poll`

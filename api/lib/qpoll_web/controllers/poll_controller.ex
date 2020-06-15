@@ -12,9 +12,9 @@ defmodule QpollWeb.PollController do
   end
 
   def create(conn, %{"poll" => poll_params}) do
-    params = fixme_format_poll_params(poll_params)
+    poll_params = format_params(poll_params)
 
-    with {:ok, %Poll{} = poll} <- Polls.create_poll(params) do
+    with {:ok, %Poll{} = poll} <- Polls.create_poll(poll_params) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", Routes.poll_path(conn, :show, poll))
@@ -29,9 +29,9 @@ defmodule QpollWeb.PollController do
 
   def update(conn, %{"id" => id, "poll" => poll_params}) do
     poll = Polls.get_poll!(id)
-    params = fixme_format_poll_params(poll_params)
+    poll_params = format_params(poll_params)
 
-    with {:ok, %Poll{} = poll} <- Polls.update_poll(poll, params) do
+    with {:ok, %Poll{} = poll} <- Polls.update_poll(poll, poll_params) do
       render(conn, "show.json", poll: poll)
     end
   end
@@ -44,13 +44,33 @@ defmodule QpollWeb.PollController do
     end
   end
 
-  defp fixme_format_poll_params(poll_params) do
+  def publish(conn, %{"id" => id}) do
+    poll = Polls.get_poll!(id)
+
+    with {:ok, %Poll{} = poll} <- Polls.publish_poll(poll) do
+      render(conn, "show.json", poll: poll)
+    end
+  end
+
+  def unpublish(conn, %{"id" => id}) do
+    poll = Polls.get_poll!(id)
+
+    with {:ok, %Poll{} = poll} <- Polls.unpublish_poll(poll) do
+      render(conn, "show.json", poll: poll)
+    end
+  end
+
+  defp format_params(poll_params) do
     poll_options =
       poll_params
       |> Map.get("options", [])
       |> Enum.map(&%{"option" => &1})
 
-    params = Map.put(poll_params, "poll_options", poll_options)
+    # FIXME filtering published prop shoeld be done in a different way
+    params =
+      poll_params
+      |> Map.put("poll_options", poll_options)
+      |> Map.take(["question", "poll_options"])
 
     params
   end

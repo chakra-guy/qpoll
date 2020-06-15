@@ -23,24 +23,26 @@ defmodule QpollWeb.PollOptionController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    poll_option = Polls.get_poll_option!(id)
-    render(conn, "show.json", poll_option: poll_option)
-  end
+  def show(conn, %{"poll_id" => poll_id, "id" => id}) do
+    poll = Polls.get_poll!(poll_id)
 
-  def update(conn, %{"id" => id, "poll_option" => poll_option_params}) do
-    poll_option = Polls.get_poll_option!(id)
-
-    with {:ok, %PollOption{} = poll_option} <-
-           Polls.update_poll_option(poll_option, poll_option_params) do
+    with {:ok, %PollOption{} = poll_option} <- Polls.get_poll_option!(poll, id) do
       render(conn, "show.json", poll_option: poll_option)
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    poll_option = Polls.get_poll_option!(id)
+  def update(conn, %{"poll_id" => poll_id, "id" => id, "poll_option" => poll_option_params}) do
+    poll = Polls.get_poll!(poll_id)
 
-    with {:ok, %PollOption{}} <- Polls.delete_poll_option(poll_option) do
+    with {:ok, %PollOption{} = poll_option} <- Polls.update_poll_option(poll, poll_option_params) do
+      render(conn, "show.json", poll_option: poll_option)
+    end
+  end
+
+  def delete(conn, %{"poll_id" => poll_id, "id" => id}) do
+    poll = Polls.get_poll!(poll_id)
+
+    with {:ok, %PollOption{}} <- Polls.delete_poll_option(poll) do
       send_resp(conn, :no_content, "")
     end
   end

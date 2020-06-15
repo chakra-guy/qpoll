@@ -13,7 +13,8 @@ defmodule QpollWeb.PollView do
   def render("poll.json", %{poll: poll}) do
     %{
       id: poll.id,
-      question: poll.question
+      question: poll.question,
+      is_publised: poll.is_published
     }
   end
 
@@ -21,6 +22,7 @@ defmodule QpollWeb.PollView do
     %{
       id: poll.id,
       question: poll.question,
+      is_publised: poll.is_published,
       options: render_many(poll.poll_options, PollOptionView, "poll_option.json")
     }
   end
