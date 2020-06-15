@@ -1,6 +1,7 @@
 defmodule QpollWeb.VoteController do
   use QpollWeb, :controller
 
+  alias QpollWeb.Endpoint
   alias Qpoll.Polls
   alias Qpoll.Polls.Vote
 
@@ -16,6 +17,8 @@ defmodule QpollWeb.VoteController do
     poll = Polls.get_poll!(poll_id)
 
     with {:ok, %Vote{} = vote} <- Polls.create_vote(poll, vote_params) do
+      Endpoint.broadcast!("poll:" <> poll_id, "new_vote", %{vote: vote})
+
       conn
       |> put_status(:created)
       |> put_resp_header("location", Routes.poll_vote_path(conn, :show, poll_id, vote))

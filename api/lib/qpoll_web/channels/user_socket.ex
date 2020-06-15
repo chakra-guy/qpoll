@@ -1,8 +1,8 @@
 defmodule QpollWeb.UserSocket do
   use Phoenix.Socket
 
-  ## Channels
-  # channel "room:*", QpollWeb.RoomChannel
+  # Channels
+  channel "poll:*", QpollWeb.PollChannel
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
