@@ -209,11 +209,11 @@ defmodule Qpoll.Polls do
 
   ## Examples
 
-      iex> list_votes(poll_id)
+      iex> list_poll_votes(poll_id)
       [%Vote{}, ...]
 
   """
-  def list_votes(%Poll{} = poll) do
+  def list_poll_votes(%Poll{} = poll) do
     Enum.flat_map(poll.poll_options, fn option -> option.votes end)
   end
 
@@ -245,7 +245,13 @@ defmodule Qpoll.Polls do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_vote(%{"option_id" => poll_option_id}) do
+  def create_vote(%Poll{is_published: false} = _poll, _attrs) do
+    {:error, :unpublished_poll_cant_be_voted_on}
+  end
+
+  def create_vote(_poll, %{"option_id" => poll_option_id}) do
+    # FIXME this should check whether these belong to each toher vote->option->poll?
+
     PollOption
     |> Repo.get(poll_option_id)
     |> Ecto.build_assoc(:votes)

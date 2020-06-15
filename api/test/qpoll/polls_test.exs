@@ -99,7 +99,10 @@ defmodule Qpoll.PollsTest do
 
     test "update_poll_option/2 with valid data updates the poll_option" do
       poll_option = poll_option_fixture()
-      assert {:ok, %PollOption{} = poll_option} = Polls.update_poll_option(poll_option, @update_attrs)
+
+      assert {:ok, %PollOption{} = poll_option} =
+               Polls.update_poll_option(poll_option, @update_attrs)
+
       assert poll_option.option == "some updated option"
     end
 
@@ -137,9 +140,9 @@ defmodule Qpoll.PollsTest do
       vote
     end
 
-    test "list_votes/0 returns all votes" do
+    test "list_poll_votes/0 returns all votes" do
       vote = vote_fixture()
-      assert Polls.list_votes() == [vote]
+      assert Polls.list_poll_votes() == [vote]
     end
 
     test "get_vote!/1 returns the vote with given id" do

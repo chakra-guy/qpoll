@@ -8,12 +8,14 @@ defmodule QpollWeb.VoteController do
 
   def index(conn, %{"poll_id" => poll_id}) do
     poll = Polls.get_poll!(poll_id)
-    votes = Polls.list_votes(poll)
+    votes = Polls.list_poll_votes(poll)
     render(conn, "index.json", votes: votes)
   end
 
   def create(conn, %{"poll_id" => poll_id, "vote" => vote_params}) do
-    with {:ok, %Vote{} = vote} <- Polls.create_vote(vote_params) do
+    poll = Polls.get_poll!(poll_id)
+
+    with {:ok, %Vote{} = vote} <- Polls.create_vote(poll, vote_params) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", Routes.poll_vote_path(conn, :show, poll_id, vote))
