@@ -27,6 +27,7 @@ defmodule QpollWeb.PollController do
     render(conn, "show.json", poll: poll)
   end
 
+  #  REVIEW
   def update(conn, %{"id" => id, "poll" => poll_params}) do
     poll = Polls.get_poll!(id)
     poll_params = format_params(poll_params)
@@ -60,6 +61,7 @@ defmodule QpollWeb.PollController do
     end
   end
 
+  #  REVIEW
   defp format_params(poll_params) do
     poll_options =
       poll_params

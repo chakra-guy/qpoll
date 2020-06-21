@@ -2,6 +2,7 @@ defmodule QpollWeb.VoteView do
   use QpollWeb, :view
   alias QpollWeb.VoteView
 
+  # REVIEW
   def render("index.json", %{votes: votes}) do
     counted_votes =
       Enum.reduce(votes, %{}, fn vote, acc ->

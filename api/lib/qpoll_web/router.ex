@@ -13,6 +13,7 @@ defmodule QpollWeb.Router do
       resources("/votes", VoteController, only: [:index, :create, :show], as: "vote")
     end
 
+    #  REVIEW
     post("/polls/:id/publish", PollController, :publish)
     post("/polls/:id/unpublish", PollController, :unpublish)
     delete("/polls/:id/publish", PollController, :unpublish)

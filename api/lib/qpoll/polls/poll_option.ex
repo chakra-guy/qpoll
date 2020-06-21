@@ -11,6 +11,7 @@ defmodule Qpoll.Polls.PollOption do
     has_many(:votes, Vote)
   end
 
+  #  REVIEW
   @doc false
   def changeset(poll_option, attrs) do
     poll_option

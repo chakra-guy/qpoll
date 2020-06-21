@@ -20,6 +20,7 @@ defmodule QpollWeb.FallbackController do
     |> render(:"404")
   end
 
+  #  REVIEW
   def call(conn, {:error, :published_poll_cant_be_modified}) do
     conn
     |> put_status(:conflict)
@@ -27,6 +28,7 @@ defmodule QpollWeb.FallbackController do
     |> render("published_poll_cant_be_modified.json")
   end
 
+  #  REVIEW
   def call(conn, {:error, :unpublished_poll_cant_be_voted_on}) do
     conn
     |> put_status(:conflict)

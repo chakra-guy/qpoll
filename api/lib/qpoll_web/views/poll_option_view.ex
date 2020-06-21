@@ -11,6 +11,7 @@ defmodule QpollWeb.PollOptionView do
     %{data: render_one(poll_option, PollOptionView, "poll_option.json")}
   end
 
+  # REVIEW
   def render("poll_option.json", %{poll_option: %{id: id, option: option, votes: votes}}) do
     vote_count = if Ecto.assoc_loaded?(votes), do: Enum.count(votes), else: 0
 

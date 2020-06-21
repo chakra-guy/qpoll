@@ -34,6 +34,7 @@ defmodule QpollWeb.PollOptionController do
   def update(conn, %{"poll_id" => poll_id, "id" => id, "poll_option" => poll_option_params}) do
     poll = Polls.get_poll!(poll_id)
 
+    #  FIXME
     with {:ok, %PollOption{} = poll_option} <- Polls.update_poll_option(poll, poll_option_params) do
       render(conn, "show.json", poll_option: poll_option)
     end
@@ -42,6 +43,7 @@ defmodule QpollWeb.PollOptionController do
   def delete(conn, %{"poll_id" => poll_id, "id" => id}) do
     poll = Polls.get_poll!(poll_id)
 
+    # FIXME
     with {:ok, %PollOption{}} <- Polls.delete_poll_option(poll) do
       send_resp(conn, :no_content, "")
     end

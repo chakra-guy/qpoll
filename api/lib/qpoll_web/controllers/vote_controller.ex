@@ -13,10 +13,12 @@ defmodule QpollWeb.VoteController do
     render(conn, "index.json", votes: votes)
   end
 
+  #  REVIEW
   def create(conn, %{"poll_id" => poll_id, "vote" => vote_params}) do
     poll = Polls.get_poll!(poll_id)
 
     with {:ok, %Vote{} = vote} <- Polls.create_vote(poll, vote_params) do
+      # FIXME update ws message to be an aggregate
       Endpoint.broadcast!("poll:" <> poll_id, "new_vote", %{vote: vote})
 
       conn

@@ -1,6 +1,7 @@
 defmodule QpollWeb.ErrorView do
   use QpollWeb, :view
 
+  # REVIEW
   def render("published_poll_cant_be_modified.json", _assigns) do
     %{errors: %{detail: "Poll can't be modified when it's published"}}
   end

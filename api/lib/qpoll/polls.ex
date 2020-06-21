@@ -123,8 +123,9 @@ defmodule Qpoll.Polls do
       ** (Ecto.NoResultsError)
 
   """
+  #  REVIEW
   def get_poll_option!(%Poll{} = poll, id) when is_binary(id) do
-    # FIXME this should raise an errror
+    # FIXME this should raise an error
     poll_option = Enum.find(poll.poll_options, fn option -> to_string(option.id) == id end)
 
     case poll_option do
@@ -145,6 +146,7 @@ defmodule Qpoll.Polls do
       {:error, %Ecto.Changeset{}}
 
   """
+  #  REVIEW
   def create_poll_option(poll, attrs \\ %{})
 
   def create_poll_option(%Poll{is_published: true} = _poll, _attrs) do
@@ -170,6 +172,7 @@ defmodule Qpoll.Polls do
       {:error, %Ecto.Changeset{}}
 
   """
+  #  REVIEW
   def update_poll_option(%Poll{is_published: true} = _poll, _poll_option, _attrs) do
     {:error, :published_poll_cant_be_modified}
   end
@@ -194,6 +197,7 @@ defmodule Qpoll.Polls do
       {:error, %Ecto.Changeset{}}
 
   """
+  #  REVIEW
   def delete_poll_option(%Poll{is_published: true} = _poll, _poll_option) do
     {:error, :published_poll_cant_be_modified}
   end
@@ -213,6 +217,7 @@ defmodule Qpoll.Polls do
       [%Vote{}, ...]
 
   """
+  #  REVIEW
   def list_poll_votes(%Poll{} = poll) do
     Enum.flat_map(poll.poll_options, fn option -> option.votes end)
   end
@@ -245,12 +250,14 @@ defmodule Qpoll.Polls do
       {:error, %Ecto.Changeset{}}
 
   """
+  #  REVIEW
   def create_vote(%Poll{is_published: false} = _poll, _attrs) do
     {:error, :unpublished_poll_cant_be_voted_on}
   end
 
   def create_vote(_poll, %{"option_id" => poll_option_id}) do
     # FIXME this should check whether these belong to each toher vote->option->poll?
+    # FIXME mapping should be poll_option_id already?
 
     PollOption
     |> Repo.get(poll_option_id)
