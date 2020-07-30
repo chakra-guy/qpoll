@@ -123,15 +123,11 @@ defmodule Qpoll.Polls do
       ** (Ecto.NoResultsError)
 
   """
-  #  REVIEW
-  def get_poll_option!(%Poll{} = poll, id) when is_binary(id) do
-    # FIXME this should raise an error
-    poll_option = Enum.find(poll.poll_options, fn option -> to_string(option.id) == id end)
 
-    case poll_option do
-      %PollOption{} -> {:ok, poll_option}
-      nil -> {:error, :not_found}
-    end
+  def get_poll_option!(id) do
+    PollOption
+    |> Repo.get!(id)
+    |> Repo.preload(:poll)
   end
 
   @doc """
@@ -172,14 +168,12 @@ defmodule Qpoll.Polls do
       {:error, %Ecto.Changeset{}}
 
   """
-  #  REVIEW
-  def update_poll_option(%Poll{is_published: true} = _poll, _poll_option, _attrs) do
+
+  def update_poll_option(%PollOption{poll: %{is_published: true}} = _poll_option, _attrs) do
     {:error, :published_poll_cant_be_modified}
   end
 
-  def update_poll_option(%Poll{} = _poll, %PollOption{} = poll_option, attrs) do
-    # FIXME this should check wheter option belongs to poll
-
+  def update_poll_option(%PollOption{} = poll_option, attrs) do
     poll_option
     |> PollOption.changeset(attrs)
     |> Repo.update()
@@ -197,14 +191,12 @@ defmodule Qpoll.Polls do
       {:error, %Ecto.Changeset{}}
 
   """
-  #  REVIEW
-  def delete_poll_option(%Poll{is_published: true} = _poll, _poll_option) do
+
+  def delete_poll_option(%PollOption{poll: %{is_published: true}} = _poll_option) do
     {:error, :published_poll_cant_be_modified}
   end
 
-  def delete_poll_option(%Poll{} = _poll, poll_option) do
-    # FIXME this should check wheter option belongs to poll
-
+  def delete_poll_option(%PollOption{} = poll_option) do
     Repo.delete(poll_option)
   end
 

@@ -36,6 +36,9 @@
 
 - Should I care about doc-tests?
 
+- Should this: `{:error, :published_poll_cant_be_modified}` be a changeset error?
+  - Is that okey that this leaks into the web boundry?
+
 # Resources
 
 - https://lobotuerto.com/blog/building-a-json-api-in-elixir-with-phoenix/
