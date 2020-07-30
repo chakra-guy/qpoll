@@ -5,6 +5,7 @@ defmodule Qpoll.Polls do
 
   import Ecto.Query, warn: false
   alias Qpoll.Repo
+  alias Ecto.Multi
 
   alias Qpoll.Polls.{Poll, PollOption, Vote}
 
@@ -83,14 +84,28 @@ defmodule Qpoll.Polls do
 
   def publish_poll(%Poll{} = poll) do
     poll
-    |> Poll.publish_changeset(%{is_published: true})
+    |> Poll.publish_changeset()
     |> Repo.update()
   end
 
   def unpublish_poll(%Poll{} = poll) do
-    poll
-    |> Poll.unpublish_changeset(%{is_published: false})
-    |> Repo.update()
+    poll_changeset = Poll.unpublish_changeset(poll)
+    poll_option_ids = Enum.map(poll.poll_options, fn poll_option -> poll_option.id end)
+    poll_votes_query = from(v in Vote, where: v.poll_option_id in ^poll_option_ids)
+
+    result =
+      Multi.new()
+      |> Multi.update(:update_poll, poll_changeset)
+      |> Multi.delete_all(:delete_votes, poll_votes_query)
+      |> Repo.transaction()
+
+    case result do
+      {:ok, %{update_poll: poll}} ->
+        {:ok, poll}
+
+      {:error, _failed_operation, _failed_value, _changes_so_far} ->
+        {:error, "Something went wrong while unpublishing a poll"}
+    end
   end
 
   @doc """

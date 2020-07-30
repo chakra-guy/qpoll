@@ -21,15 +21,15 @@ defmodule Qpoll.Polls.Poll do
     |> validate_required([:question])
   end
 
-  def publish_changeset(poll, attrs) do
+  def publish_changeset(poll) do
     poll
-    |> cast(attrs, [:is_published])
+    |> cast(%{is_published: true}, [:is_published])
     |> validate_min_options_count(2)
   end
 
-  def unpublish_changeset(poll, attrs) do
+  def unpublish_changeset(poll) do
     poll
-    |> cast(attrs, [:is_published])
+    |> cast(%{is_published: false}, [:is_published])
   end
 
   defp validate_min_options_count(changeset, count) do
