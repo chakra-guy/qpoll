@@ -61,18 +61,15 @@ defmodule QpollWeb.PollController do
     end
   end
 
-  #  REVIEW
   defp format_params(poll_params) do
     poll_options =
       poll_params
       |> Map.get("options", [])
       |> Enum.map(&%{"option" => &1})
 
-    # FIXME filtering published prop shoeld be done in a different way
     params =
       poll_params
       |> Map.put("poll_options", poll_options)
-      |> Map.take(["question", "poll_options"])
 
     params
   end

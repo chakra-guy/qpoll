@@ -2,6 +2,10 @@ defmodule QpollWeb.ErrorView do
   use QpollWeb, :view
 
   # REVIEW
+  def render("voted_option_doesnt_belong_to_poll.json", _assigns) do
+    %{errors: %{detail: "Voted option doesn't belong to poll"}}
+  end
+
   def render("published_poll_cant_be_modified.json", _assigns) do
     %{errors: %{detail: "Poll can't be modified when it's published"}}
   end

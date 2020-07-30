@@ -16,8 +16,28 @@ defmodule Qpoll.Polls.Poll do
   @doc false
   def changeset(poll, attrs) do
     poll
-    |> cast(attrs, [:question, :is_published])
+    |> cast(attrs, [:question])
     |> cast_assoc(:poll_options)
     |> validate_required([:question])
+  end
+
+  def publish_changeset(poll, attrs) do
+    poll
+    |> cast(attrs, [:is_published])
+    |> validate_min_options_count(2)
+  end
+
+  def unpublish_changeset(poll, attrs) do
+    poll
+    |> cast(attrs, [:is_published])
+  end
+
+  defp validate_min_options_count(changeset, count) do
+    poll_options = get_field(changeset, :poll_options, [])
+
+    case length(poll_options) >= count do
+      true -> changeset
+      false -> add_error(changeset, :poll_options, "should have at least #{count} option(s)")
+    end
   end
 end

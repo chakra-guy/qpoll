@@ -83,13 +83,13 @@ defmodule Qpoll.Polls do
 
   def publish_poll(%Poll{} = poll) do
     poll
-    |> Poll.changeset(%{is_published: true})
+    |> Poll.publish_changeset(%{is_published: true})
     |> Repo.update()
   end
 
   def unpublish_poll(%Poll{} = poll) do
     poll
-    |> Poll.changeset(%{is_published: false})
+    |> Poll.unpublish_changeset(%{is_published: false})
     |> Repo.update()
   end
 
@@ -242,17 +242,12 @@ defmodule Qpoll.Polls do
       {:error, %Ecto.Changeset{}}
 
   """
-  #  REVIEW
-  def create_vote(%Poll{is_published: false} = _poll, _attrs) do
+  def create_vote(%PollOption{poll: %{is_published: false}} = _poll_option) do
     {:error, :unpublished_poll_cant_be_voted_on}
   end
 
-  def create_vote(_poll, %{"option_id" => poll_option_id}) do
-    # FIXME this should check whether these belong to each toher vote->option->poll?
-    # FIXME mapping should be poll_option_id already?
-
-    PollOption
-    |> Repo.get(poll_option_id)
+  def create_vote(%PollOption{} = poll_option) do
+    poll_option
     |> Ecto.build_assoc(:votes)
     |> Repo.insert()
   end

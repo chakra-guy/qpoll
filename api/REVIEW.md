@@ -37,7 +37,10 @@
 - Should I care about doc-tests?
 
 - Should this: `{:error, :published_poll_cant_be_modified}` be a changeset error?
+
   - Is that okey that this leaks into the web boundry?
+
+- is that okey that validation funciton that's in `publish_changeset` depends on the fact the the associations are always preloaded?
 
 # Resources
 
