@@ -1,7 +1,7 @@
 defmodule QpollWeb.VoteController do
   use QpollWeb, :controller
 
-  # alias QpollWeb.Endpoint
+  alias QpollWeb.Endpoint
   alias Qpoll.Polls
   alias Qpoll.Polls.Vote
 
@@ -12,8 +12,7 @@ defmodule QpollWeb.VoteController do
 
     with {:ok, _poll_option} <- Polls.option_belongs_to_poll?(id, poll_option),
          {:ok, %Vote{} = vote} <- Polls.create_vote(poll_option) do
-      # FIXME update ws message to be an aggregate
-      # Endpoint.broadcast!("poll:" <> poll_id, "new_vote", %{vote: vote})
+      Endpoint.broadcast!("poll:" <> id, "new_vote", %{poll_option_id: poll_option.id})
 
       conn
       |> put_status(:created)
