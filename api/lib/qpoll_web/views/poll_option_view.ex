@@ -1,6 +1,5 @@
 defmodule QpollWeb.PollOptionView do
   use QpollWeb, :view
-  alias Ecto
   alias QpollWeb.PollOptionView
 
   def render("index.json", %{poll_options: poll_options}) do

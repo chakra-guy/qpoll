@@ -68,7 +68,7 @@ defmodule Qpoll.Polls do
   def get_poll_option!(id) do
     PollOption
     |> Repo.get!(id)
-    |> Repo.preload(:poll)
+    |> Repo.preload([:poll, :votes])
   end
 
   def create_poll_option(poll, attrs \\ %{})
@@ -100,6 +100,13 @@ defmodule Qpoll.Polls do
 
   def delete_poll_option(%PollOption{} = poll_option) do
     Repo.delete(poll_option)
+  end
+
+  def option_belongs_to_poll?(poll_id, poll_option) do
+    case poll_id == to_string(poll_option.poll_id) do
+      true -> {:ok, poll_option}
+      false -> {:error, :voted_option_doesnt_belong_to_poll}
+    end
   end
 
   # VOTES

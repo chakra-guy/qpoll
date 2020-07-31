@@ -20,6 +20,7 @@ defmodule QpollWeb.FallbackController do
     |> render(:"404")
   end
 
+  #  REVIEW
   def call(conn, {:error, :voted_option_doesnt_belong_to_poll}) do
     conn
     |> put_status(:conflict)
