@@ -12,7 +12,6 @@ defmodule Qpoll.Polls.PollOption do
   end
 
   #  REVIEW
-  @doc false
   def changeset(poll_option, attrs) do
     poll_option
     |> cast(attrs, [:option])

@@ -9,7 +9,6 @@ defmodule Qpoll.Polls.Vote do
     belongs_to(:poll_option, PollOption)
   end
 
-  @doc false
   def changeset(vote, attrs) do
     vote
     |> cast(attrs, [])

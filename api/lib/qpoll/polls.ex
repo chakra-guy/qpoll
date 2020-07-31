@@ -9,69 +9,24 @@ defmodule Qpoll.Polls do
 
   alias Qpoll.Polls.{Poll, PollOption, Vote}
 
-  @doc """
-  Returns the list of polls.
+  # POLL
 
-  ## Examples
-
-      iex> list_polls()
-      [%Poll{}, ...]
-
-  """
   def list_polls do
     Repo.all(Poll)
   end
 
-  @doc """
-  Gets a single poll.
-
-  Raises `Ecto.NoResultsError` if the Poll does not exist.
-
-  ## Examples
-
-      iex> get_poll!(123)
-      %Poll{}
-
-      iex> get_poll!(456)
-      ** (Ecto.NoResultsError)
-
-  """
   def get_poll!(id) do
     Poll
     |> Repo.get!(id)
     |> Repo.preload(poll_options: [:votes])
   end
 
-  @doc """
-  Creates a poll.
-
-  ## Examples
-
-      iex> create_poll(%{field: value})
-      {:ok, %Poll{}}
-
-      iex> create_poll(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
   def create_poll(attrs \\ %{}) do
     %Poll{}
     |> Poll.changeset(attrs)
     |> Repo.insert()
   end
 
-  @doc """
-  Updates a poll.
-
-  ## Examples
-
-      iex> update_poll(poll, %{field: new_value})
-      {:ok, %Poll{}}
-
-      iex> update_poll(poll, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
   def update_poll(%Poll{is_published: true} = _poll, _attrs) do
     {:error, :published_poll_cant_be_modified}
   end
@@ -80,6 +35,10 @@ defmodule Qpoll.Polls do
     poll
     |> Poll.changeset(attrs)
     |> Repo.update()
+  end
+
+  def delete_poll(%Poll{} = poll) do
+    Repo.delete(poll)
   end
 
   def publish_poll(%Poll{} = poll) do
@@ -108,36 +67,7 @@ defmodule Qpoll.Polls do
     end
   end
 
-  @doc """
-  Deletes a poll.
-
-  ## Examples
-
-      iex> delete_poll(poll)
-      {:ok, %Poll{}}
-
-      iex> delete_poll(poll)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_poll(%Poll{} = poll) do
-    Repo.delete(poll)
-  end
-
-  @doc """
-  Gets a single poll_option.
-
-  Raises `Ecto.NoResultsError` if the Poll option does not exist.
-
-  ## Examples
-
-      iex> get_poll_option!(123)
-      %PollOption{}
-
-      iex> get_poll_option!(456)
-      ** (Ecto.NoResultsError)
-
-  """
+  # POLL OPTION
 
   def get_poll_option!(id) do
     PollOption
@@ -145,19 +75,6 @@ defmodule Qpoll.Polls do
     |> Repo.preload(:poll)
   end
 
-  @doc """
-  Creates a poll_option for a given poll.
-
-  ## Examples
-
-      iex> create_poll_option(%{field: value})
-      {:ok, %PollOption{}}
-
-      iex> create_poll_option(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  #  REVIEW
   def create_poll_option(poll, attrs \\ %{})
 
   def create_poll_option(%Poll{is_published: true} = _poll, _attrs) do
@@ -171,19 +88,6 @@ defmodule Qpoll.Polls do
     |> Repo.insert()
   end
 
-  @doc """
-  Updates a poll_option.
-
-  ## Examples
-
-      iex> update_poll_option(poll_option, %{field: new_value})
-      {:ok, %PollOption{}}
-
-      iex> update_poll_option(poll_option, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-
   def update_poll_option(%PollOption{poll: %{is_published: true}} = _poll_option, _attrs) do
     {:error, :published_poll_cant_be_modified}
   end
@@ -194,19 +98,6 @@ defmodule Qpoll.Polls do
     |> Repo.update()
   end
 
-  @doc """
-  Deletes a poll_option.
-
-  ## Examples
-
-      iex> delete_poll_option(poll_option)
-      {:ok, %PollOption{}}
-
-      iex> delete_poll_option(poll_option)
-      {:error, %Ecto.Changeset{}}
-
-  """
-
   def delete_poll_option(%PollOption{poll: %{is_published: true}} = _poll_option) do
     {:error, :published_poll_cant_be_modified}
   end
@@ -215,48 +106,15 @@ defmodule Qpoll.Polls do
     Repo.delete(poll_option)
   end
 
-  @doc """
-  Returns the list of votes for a given poll.
+  # VOTES
 
-  ## Examples
-
-      iex> list_poll_votes(poll_id)
-      [%Vote{}, ...]
-
-  """
   #  REVIEW
   def list_poll_votes(%Poll{} = poll) do
     Enum.flat_map(poll.poll_options, fn option -> option.votes end)
   end
 
-  @doc """
-  Gets a single vote.
-
-  Raises `Ecto.NoResultsError` if the Vote does not exist.
-
-  ## Examples
-
-      iex> get_vote!(123)
-      %Vote{}
-
-      iex> get_vote!(456)
-      ** (Ecto.NoResultsError)
-
-  """
   def get_vote!(id), do: Repo.get!(Vote, id)
 
-  @doc """
-  Creates a vote for a give poll option.
-
-  ## Examples
-
-      iex> create_vote(%{option_id: value})
-      {:ok, %Vote{}}
-
-      iex> create_vote(%{option_id: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
   def create_vote(%PollOption{poll: %{is_published: false}} = _poll_option) do
     {:error, :unpublished_poll_cant_be_voted_on}
   end
