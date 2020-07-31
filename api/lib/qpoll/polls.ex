@@ -1,8 +1,4 @@
 defmodule Qpoll.Polls do
-  @moduledoc """
-  The Polls context.
-  """
-
   import Ecto.Query, warn: false
   alias Qpoll.Repo
   alias Ecto.Multi
@@ -107,13 +103,6 @@ defmodule Qpoll.Polls do
   end
 
   # VOTES
-
-  #  REVIEW
-  def list_poll_votes(%Poll{} = poll) do
-    Enum.flat_map(poll.poll_options, fn option -> option.votes end)
-  end
-
-  def get_vote!(id), do: Repo.get!(Vote, id)
 
   def create_vote(%PollOption{poll: %{is_published: false}} = _poll_option) do
     {:error, :unpublished_poll_cant_be_voted_on}
