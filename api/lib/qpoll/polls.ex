@@ -56,7 +56,7 @@ defmodule Qpoll.Polls do
 
     case result do
       {:ok, %{update_poll: poll}} ->
-        {:ok, poll}
+        {:ok, get_poll!(poll.id)}
 
       {:error, _failed_operation, _failed_value, _changes_so_far} ->
         {:error, "Something went wrong while unpublishing a poll"}

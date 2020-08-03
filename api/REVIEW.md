@@ -42,6 +42,8 @@
 
 - is that okey that validation funciton that's in `publish_changeset` depends on the fact the the associations are always preloaded?
 
+- Should `Polls.get_poll!` and `Polls.update_poll` return the same poll (including loaded associations)?
+
 # Resources
 
 - https://lobotuerto.com/blog/building-a-json-api-in-elixir-with-phoenix/
