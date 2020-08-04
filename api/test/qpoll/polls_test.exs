@@ -28,8 +28,14 @@ defmodule Qpoll.PollsTest do
       poll
     end
 
+    def published_poll_fixture() do
+      {:ok, poll} = poll_fixture(@with_options_attrs) |> Polls.publish_poll(poll)
+
+      poll
+    end
+
     def published_poll_with_votes_fixture() do
-      {:ok, poll} = poll_fixture(@with_options_attrs) |> Polls.publish_poll()
+      poll = published_poll_fixture()
 
       [%PollOption{id: poll_option_id} | _] = poll.poll_options
 
@@ -132,35 +138,38 @@ defmodule Qpoll.PollsTest do
     @invalid_attrs %{option: nil}
 
     def poll_option_fixture(attrs \\ %{}) do
-      {:ok, poll_option} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> Polls.create_poll_option()
+      attrs = Enum.into(attrs, @valid_attrs)
+      {:ok, poll} = Polls.create_poll(%{question: "some question"})
+      {:ok, poll_option} = Polls.create_poll_option(poll, attrs)
 
       poll_option
     end
 
-    test "list_poll_options/0 returns all poll_options" do
-      poll_option = poll_option_fixture()
-      assert Polls.list_poll_options() == [poll_option]
-    end
-
     test "get_poll_option!/1 returns the poll_option with given id" do
-      poll_option = poll_option_fixture()
+      poll_option = poll_option_fixture() |> Repo.preload([:poll, :votes])
       assert Polls.get_poll_option!(poll_option.id) == poll_option
     end
 
     test "create_poll_option/1 with valid data creates a poll_option" do
-      assert {:ok, %PollOption{} = poll_option} = Polls.create_poll_option(@valid_attrs)
+      poll = poll_fixture()
+      assert {:ok, %PollOption{} = poll_option} = Polls.create_poll_option(poll, @valid_attrs)
       assert poll_option.option == "some option"
     end
 
+    test "create_poll_option/1 with published poll returns error" do
+      poll = published_poll_fixture()
+
+      assert {:error, :published_poll_cant_be_modified} =
+               Polls.create_poll_option(poll, @valid_attrs)
+    end
+
     test "create_poll_option/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Polls.create_poll_option(@invalid_attrs)
+      poll = poll_fixture()
+      assert {:error, %Ecto.Changeset{}} = Polls.create_poll_option(poll, @invalid_attrs)
     end
 
     test "update_poll_option/2 with valid data updates the poll_option" do
-      poll_option = poll_option_fixture()
+      poll_option = poll_option_fixture() |> Repo.preload(:poll)
 
       assert {:ok, %PollOption{} = poll_option} =
                Polls.update_poll_option(poll_option, @update_attrs)
@@ -168,21 +177,50 @@ defmodule Qpoll.PollsTest do
       assert poll_option.option == "some updated option"
     end
 
+    test "update_poll_option/2 with published poll returns error" do
+      poll = published_poll_fixture()
+      [%PollOption{id: poll_option_id} | _] = poll.poll_options
+      poll_option = Polls.get_poll_option!(poll_option_id)
+
+      assert {:error, :published_poll_cant_be_modified} =
+               Polls.update_poll_option(poll_option, @update_attrs)
+
+      assert poll_option == Polls.get_poll_option!(poll_option.id)
+    end
+
     test "update_poll_option/2 with invalid data returns error changeset" do
-      poll_option = poll_option_fixture()
+      poll_option = poll_option_fixture() |> Repo.preload([:poll, :votes])
       assert {:error, %Ecto.Changeset{}} = Polls.update_poll_option(poll_option, @invalid_attrs)
       assert poll_option == Polls.get_poll_option!(poll_option.id)
     end
 
     test "delete_poll_option/1 deletes the poll_option" do
-      poll_option = poll_option_fixture()
+      poll_option = poll_option_fixture() |> Repo.preload(:poll)
       assert {:ok, %PollOption{}} = Polls.delete_poll_option(poll_option)
       assert_raise Ecto.NoResultsError, fn -> Polls.get_poll_option!(poll_option.id) end
     end
 
-    test "change_poll_option/1 returns a poll_option changeset" do
+    test "delete_poll_option/1 wiht published poll return error" do
+      poll = published_poll_fixture()
+      [%PollOption{id: poll_option_id} | _] = poll.poll_options
+      poll_option = Polls.get_poll_option!(poll_option_id)
+
+      assert {:error, :published_poll_cant_be_modified} = Polls.delete_poll_option(poll_option)
+
+      assert poll_option == Polls.get_poll_option!(poll_option.id)
+    end
+
+    test "option_belongs_to_poll?/1 returns a poll_option when it belongs to the poll" do
+      poll_option = poll_option_fixture() |> Repo.preload(:poll)
+      poll_id = to_string(poll_option.poll.id)
+      assert {:ok, poll_option} = Polls.option_belongs_to_poll?(poll_id, poll_option)
+    end
+
+    test "option_belongs_to_poll?/1 returns an error when it does not belongs to the poll" do
       poll_option = poll_option_fixture()
-      assert %Ecto.Changeset{} = Polls.change_poll_option(poll_option)
+
+      assert {:error, :voted_option_doesnt_belong_to_poll} =
+               Polls.option_belongs_to_poll?("404", poll_option)
     end
   end
 
