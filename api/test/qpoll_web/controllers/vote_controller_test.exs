@@ -2,80 +2,62 @@ defmodule QpollWeb.VoteControllerTest do
   use QpollWeb.ConnCase
 
   alias Qpoll.Polls
-  alias Qpoll.Polls.Vote
+  alias Qpoll.Polls.PollOption
+  alias QpollWeb.Endpoint
 
-  @create_attrs %{
-
+  @create_poll_with_options_attrs %{
+    question: "some question",
+    poll_options: [%{option: "A"}, %{option: "B"}]
   }
-  @update_attrs %{
+  @create_poll_option_attrs %{option: "A"}
 
-  }
-  @invalid_attrs %{}
+  def fixture(:published_poll) do
+    {:ok, poll} = Polls.create_poll(@create_poll_with_options_attrs)
+    {:ok, _} = Polls.get_poll!(poll.id) |> Polls.publish_poll()
+    Polls.get_poll!(poll.id)
+  end
 
-  def fixture(:vote) do
-    {:ok, vote} = Polls.create_vote(@create_attrs)
-    vote
+  def fixture(:poll_option) do
+    {:ok, poll} = Polls.create_poll(@create_poll_with_options_attrs)
+    {:ok, poll_option} = Polls.create_poll_option(poll, @create_poll_option_attrs)
+    Polls.get_poll_option!(poll_option.id)
   end
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
-  describe "index" do
-    test "lists all votes", %{conn: conn} do
-      conn = get(conn, Routes.vote_path(conn, :index))
-      assert json_response(conn, 200)["data"] == []
-    end
-  end
-
   describe "create vote" do
-    test "renders vote when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.vote_path(conn, :create), vote: @create_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+    test "renders vote when data is valid, updates vote count and broadcast new vote", %{
+      conn: conn
+    } do
+      poll = fixture(:published_poll)
+      [%PollOption{id: id} | _] = poll.poll_options
 
-      conn = get(conn, Routes.vote_path(conn, :show, id))
+      Endpoint.subscribe("poll:#{poll.id}")
 
-      assert %{
-               "id" => id
-             } = json_response(conn, 200)["data"]
+      conn = post(conn, Routes.vote_path(conn, :create, poll.id), vote: %{"option_id" => id})
+
+      assert_receive %Phoenix.Socket.Broadcast{event: "new_vote", payload: %{poll_option_id: id}}
+      assert %{"id" => _} = json_response(conn, 201)["data"]
+
+      conn = get(conn, Routes.poll_option_path(conn, :show, poll.id, id))
+
+      assert %{"vote_count" => 1} = json_response(conn, 200)["data"]
+
+      Endpoint.unsubscribe("poll:#{poll.id}")
     end
 
-    test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.vote_path(conn, :create), vote: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
-    end
-  end
+    test "renders errors when option does not belong to poll", %{conn: conn} do
+      poll = fixture(:published_poll)
+      poll_option = fixture(:poll_option)
 
-  describe "update vote" do
-    setup [:create_vote]
+      conn =
+        post(conn, Routes.vote_path(conn, :create, poll.id),
+          vote: %{"option_id" => poll_option.id}
+        )
 
-    test "renders vote when data is valid", %{conn: conn, vote: %Vote{id: id} = vote} do
-      conn = put(conn, Routes.vote_path(conn, :update, vote), vote: @update_attrs)
-      assert %{"id" => ^id} = json_response(conn, 200)["data"]
-
-      conn = get(conn, Routes.vote_path(conn, :show, id))
-
-      assert %{
-               "id" => id
-             } = json_response(conn, 200)["data"]
-    end
-
-    test "renders errors when data is invalid", %{conn: conn, vote: vote} do
-      conn = put(conn, Routes.vote_path(conn, :update, vote), vote: @invalid_attrs)
-      assert json_response(conn, 422)["errors"] != %{}
-    end
-  end
-
-  describe "delete vote" do
-    setup [:create_vote]
-
-    test "deletes chosen vote", %{conn: conn, vote: vote} do
-      conn = delete(conn, Routes.vote_path(conn, :delete, vote))
-      assert response(conn, 204)
-
-      assert_error_sent 404, fn ->
-        get(conn, Routes.vote_path(conn, :show, vote))
-      end
+      assert json_response(conn, 409)["errors"]["detail"] == "Voted option doesn't belong to poll"
     end
   end
 
